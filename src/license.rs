@@ -68,7 +68,7 @@ pub async fn update_license(state: &State, new_license: &str) -> Result<()> {
 
 /// inline always, Increase the difficulty of disassembly
 #[inline(always)]
-pub async fn check_license(state: &State, req: &Request) -> Result<()> {
+pub async fn check_license(_state: &State, req: &Request) -> Result<()> {
     if cfg!(test) && req.header("Referer").is_none() {
         return Ok(());
     }
@@ -87,16 +87,6 @@ pub async fn check_license(state: &State, req: &Request) -> Result<()> {
     }
     if vc_license::rsa_check_license(license, VOCE_LICENSE_PUBLIC_KEY_PEM).is_err() {
         return Err(anyhow::anyhow!("License error: Sign invalid."));
-    }
-    let cache = state.cache.read().await;
-    if cache
-        .users
-        .iter()
-        .filter(|(_, user)| !user.is_guest)
-        .count()
-        > license.user_limit as usize
-    {
-        return Err(anyhow::anyhow!("License error: Users reached limit."));
     }
     Ok(())
 }
